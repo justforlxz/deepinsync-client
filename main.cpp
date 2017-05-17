@@ -16,7 +16,10 @@ int main(int argc, char *argv[])
     parser.process(a);
     bool debug = parser.isSet(dbgOption);
 
-    Client *client = new Client(QUrl(QStringLiteral("ws://server.mkacg.com:1996")));
+    Client *client = new Client(QUrl(QStringLiteral("ws://10.0.12.249:1996")));
     QObject::connect(client, &Client::closed, &a, &QCoreApplication::quit);
+
+    Wallpaper *w = new Wallpaper(client);
+
     return a.exec();
 }

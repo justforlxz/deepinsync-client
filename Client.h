@@ -10,6 +10,8 @@ class Client : public QObject
 public:
     explicit Client(const QUrl &url, QObject *parent = 0);
 
+    void sendMessage(const QJsonObject &json);
+
 Q_SIGNALS:
     void closed();
 
