@@ -13,6 +13,7 @@ class Wallpaper : public QObject
     Q_OBJECT
 public:
     explicit Wallpaper(Client *client, QObject *parent = 0);
+    void bindingService();
 
 private:
     Client *m_client;

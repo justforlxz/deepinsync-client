@@ -1,5 +1,5 @@
 QT += core
-QT -= gui
+QT += gui
 QT += dbus websockets
 
 CONFIG += c++11
