@@ -29,7 +29,9 @@ void Wallpaper::bindingService()
                 qDebug() << file.error();
                 return;
             }
+
             QByteArray array = file.readAll();
+
             QJsonObject json;
             json.insert("background", array.toBase64().data());
             m_client->sendMessage(json);
@@ -46,9 +48,10 @@ void Wallpaper::bindingService()
         QFile file("/tmp/background");
         // Write contents of ba in file
         file.open(QIODevice::WriteOnly);
+        qDebug() <<  file.write(array);
         // Close the file
         file.close();
         qDebug() << file.error();
-        m_wallpaperDBus->Set("background", "/tmp/background");
+        m_wallpaperDBus->Set("background", "/tmp/1");
     });
 }
