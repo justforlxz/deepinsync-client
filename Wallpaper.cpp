@@ -30,10 +30,14 @@ void Wallpaper::bindingService()
                 return;
             }
 
+            QFileInfo info(f1);
             QByteArray array = file.readAll();
 
             QJsonObject json;
             json.insert("background", array.toBase64().data());
+            json.insert("filename", info.fileName());
+            json.insert("type", info.completeSuffix());
+
             m_client->sendMessage(json);
         }
     });
@@ -45,13 +49,15 @@ void Wallpaper::bindingService()
         QByteArray array = obj["background"].toString().toUtf8();
         array = QByteArray::fromBase64(array);
 
-        QFile file("/tmp/background");
+        QString path = "/tmp/" + obj["filename"].toString();
+
+        QFile file(path);
         // Write contents of ba in file
         file.open(QIODevice::WriteOnly);
         qDebug() <<  file.write(array);
         // Close the file
         file.close();
         qDebug() << file.error();
-        m_wallpaperDBus->Set("background", "/tmp/1");
+        m_wallpaperDBus->Set("background", path);
     });
 }
