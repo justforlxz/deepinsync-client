@@ -23,35 +23,32 @@ void Wallpaper::bindingService()
 {
     connect(m_wallpaperDBus, &Appearance::Changed, this, [=](const QString &in0, const QString &in1){
         if (in0 == "background") {
-            QString file = in1;
-            QImage image(file.replace("file://", ""));
-            QByteArray byteArray;
-            QBuffer buffer(&byteArray);
-            image.save(&buffer, "PNG");
-
+            QString f1 = in1;
+            QFile file(f1.replace("file://", ""));
+            if (!file.open(QIODevice::ReadOnly)) {
+                qDebug() << file.error();
+                return;
+            }
+            QByteArray array = file.readAll();
             QJsonObject json;
-            json.insert("background", byteArray.toBase64().data());
+            json.insert("background", array.toBase64().data());
             m_client->sendMessage(json);
         }
     });
 
     connect(m_client->websocket(), &QWebSocket::textMessageReceived, this,[=](const QString &message){
         qDebug() << "收到数据，正在设置...";
-        QJsonValue value(message);
-        const QJsonObject obj = value.toObject();
-        for (const QString &v : obj.keys()) {
+        QJsonDocument jsonDocument = QJsonDocument::fromJson(message.toLocal8Bit().data());
+        QJsonObject obj = jsonDocument.object();
+        QByteArray array = obj["background"].toString().toUtf8();
+        array = QByteArray::fromBase64(array);
 
-            QByteArray byte_array = QJsonDocument(obj.value(v).toObject()).toJson();
-            QByteArray Ret_bytearray;
-            Ret_bytearray = QByteArray::fromBase64(byte_array);
-            QBuffer buffer(&Ret_bytearray);
-            buffer.open(QIODevice::WriteOnly);
-            QPixmap imageresult;
-            imageresult.loadFromData(Ret_bytearray);
-            const QString path = "/tmp/1/1";
-            imageresult.save(path);
-
-            m_wallpaperDBus->Set(v, path);
-        }
+        QFile file("/tmp/background");
+        // Write contents of ba in file
+        file.open(QIODevice::WriteOnly);
+        // Close the file
+        file.close();
+        qDebug() << file.error();
+        m_wallpaperDBus->Set("background", "/tmp/background");
     });
 }
