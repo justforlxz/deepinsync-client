@@ -4,7 +4,7 @@
 #include "Client.h"
 
 #include <QObject>
-#include <com_deepin_daemon_apperance.h>
+#include <com_deepin_daemon_appearance.h>
 
 using com::deepin::daemon::Appearance;
 
@@ -18,6 +18,7 @@ public:
 private:
     Client *m_client;
     Appearance *m_wallpaperDBus;
+    QString m_wallpaperName;
 };
 
 #endif // WALLPAPER_H

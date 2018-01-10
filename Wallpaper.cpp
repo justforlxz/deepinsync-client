@@ -31,12 +31,18 @@ void Wallpaper::bindingService()
             }
 
             QFileInfo info(f1);
+            if (m_wallpaperName == info.fileName()) {
+                return;
+            }
+
             QByteArray array = file.readAll();
 
             QJsonObject json;
             json.insert("background", array.toBase64().data());
             json.insert("filename", info.fileName());
             json.insert("type", info.completeSuffix());
+
+            m_wallpaperName = info.fileName();
 
             m_client->sendMessage(json);
         }
@@ -46,10 +52,22 @@ void Wallpaper::bindingService()
         qDebug() << "收到数据，正在设置...";
         QJsonDocument jsonDocument = QJsonDocument::fromJson(message.toLocal8Bit().data());
         QJsonObject obj = jsonDocument.object();
+
+        const QString &filename = obj["filename"].toString();
+
+        if (filename == m_wallpaperName) {
+            qDebug() << "跳过自己";
+            return;
+        }
+
+        m_wallpaperName = filename;
+
+        QString path = QString("/tmp/%1").arg(filename);
+
+
         QByteArray array = obj["background"].toString().toUtf8();
         array = QByteArray::fromBase64(array);
 
-        QString path = "/tmp/" + obj["filename"].toString();
 
         QFile file(path);
         // Write contents of ba in file
